@@ -118,6 +118,8 @@ tests/components/backup/* @home-assistant/core
 homeassistant/components/balboa/* @garbled1
 tests/components/balboa/* @garbled1
 homeassistant/components/beewi_smartclim/* @alemuro
+homeassistant/components/bhyve/* @sebr
+tests/components/bhyve/* @sebr
 homeassistant/components/binary_sensor/* @home-assistant/core
 tests/components/binary_sensor/* @home-assistant/core
 homeassistant/components/bitcoin/* @fabaff
