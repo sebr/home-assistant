@@ -45,7 +45,7 @@ async def async_setup_entry(
 
     bhyve = hass.data[DOMAIN][entry.entry_id][CONF_CLIENT]
 
-    sensors = [BHyveDeviceEntity]
+    sensors = []
     devices = await bhyve.devices
     for device in devices:
         if device.get("type") == DEVICE_SPRINKLER:
@@ -114,7 +114,7 @@ class BHyveBatterySensor(BHyveDeviceEntity):
 
     @property
     def state(self):
-        """Return the state of the entity"""
+        """Return the state of the entity."""
         return self._state
 
     @property
@@ -143,7 +143,7 @@ class BHyveBatterySensor(BHyveDeviceEntity):
 
     @property
     def entity_category(self):
-        """Battery is a diagnostic category"""
+        """Battery is a diagnostic category."""
         return EntityCategory.DIAGNOSTIC
 
     def _should_handle_event(self, event_name, data):
@@ -183,7 +183,7 @@ class BHyveZoneHistorySensor(BHyveDeviceEntity):
 
     @property
     def state(self):
-        """Return the state of the entity"""
+        """Return the state of the entity."""
         return self._state
 
     @property
@@ -198,7 +198,7 @@ class BHyveZoneHistorySensor(BHyveDeviceEntity):
 
     @property
     def entity_category(self):
-        """History is a diagnostic category"""
+        """History is a diagnostic category."""
         return EntityCategory.DIAGNOSTIC
 
     def _should_handle_event(self, event_name, data):
@@ -269,7 +269,7 @@ class BHyveStateSensor(BHyveDeviceEntity):
 
     @property
     def state(self):
-        """Return the state of the entity"""
+        """Return the state of the entity."""
         return self._state
 
     @property
@@ -279,7 +279,7 @@ class BHyveStateSensor(BHyveDeviceEntity):
 
     @property
     def entity_category(self):
-        """Run state is a diagnostic category"""
+        """Run state is a diagnostic category."""
         return EntityCategory.DIAGNOSTIC
 
     def _on_ws_data(self, data):
@@ -323,7 +323,7 @@ class BHyveTemperatureSensor(BHyveDeviceEntity):
 
     @property
     def state(self):
-        """Return the state of the entity"""
+        """Return the state of the entity."""
         return self._state
 
     @property
@@ -337,9 +337,9 @@ class BHyveTemperatureSensor(BHyveDeviceEntity):
         return f"{self._mac_address}:{self._device_id}:temp"
 
     def _on_ws_data(self, data):
-        """
-        {"last_flood_alarm_at":"2021-08-29T16:32:35.585Z","rssi":-60,"onboard_complete":true,"temp_f":75.2,"provisioned":true,"phy":"le_1m_1000","event":"fs_status_update","temp_alarm_status":"ok","status_updated_at":"2021-08-29T16:33:17.089Z","identify_enabled":false,"device_id":"612ad9134f0c6c9c9faddbba","timestamp":"2021-08-29T16:33:17.089Z","flood_alarm_status":"ok","last_temp_alarm_at":null}
-        """
+        #
+        # {"last_flood_alarm_at":"2021-08-29T16:32:35.585Z","rssi":-60,"onboard_complete":true,"temp_f":75.2,"provisioned":true,"phy":"le_1m_1000","event":"fs_status_update","temp_alarm_status":"ok","status_updated_at":"2021-08-29T16:33:17.089Z","identify_enabled":false,"device_id":"612ad9134f0c6c9c9faddbba","timestamp":"2021-08-29T16:33:17.089Z","flood_alarm_status":"ok","last_temp_alarm_at":null}
+        #
         _LOGGER.info("Received program data update %s", data)
         event = data.get("event")
         if event == EVENT_FS_ALARM:
