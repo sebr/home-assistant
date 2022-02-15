@@ -9,5 +9,9 @@ class RequestError(BHyveError):
     """Define an error related to invalid requests."""
 
 
+class AuthenticationError(RequestError):
+    """Define an error related to invalid authentication."""
+
+
 class WebsocketError(BHyveError):
     """Define an error related to generic websocket errors."""
