@@ -36,7 +36,7 @@ from .const import (
     SIGNAL_UPDATE_PROGRAM,
 )
 from .pybhyve.errors import BHyveError
-from .util import orbit_time_to_local_time
+from .util import filter_configured_devices, orbit_time_to_local_time
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -123,7 +123,7 @@ async def async_setup_entry(
     bhyve = hass.data[DOMAIN][entry.entry_id][CONF_CLIENT]
 
     switches = []
-    devices = await bhyve.devices
+    devices = filter_configured_devices(entry, await bhyve.devices)
     programs = await bhyve.timer_programs
 
     device_by_id = {}
