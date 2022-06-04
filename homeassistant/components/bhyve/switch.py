@@ -599,7 +599,7 @@ class BHyveZoneSwitch(BHyveDeviceEntity, SwitchEntity):
                     )
         else:
             _LOGGER.info(
-                "Zone %s isn't smart watering enabled, cannot set soil moisture.",
+                "Zone %s isn't smart watering enabled, cannot set soil moisture",
                 self._zone_name,
             )
 
