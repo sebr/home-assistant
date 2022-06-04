@@ -22,7 +22,6 @@ from homeassistant.helpers.dispatcher import (
 from homeassistant.helpers.entity import DeviceInfo, Entity
 
 from .const import (
-    CONF_DEVICES,
     DOMAIN,
     EVENT_PROGRAM_CHANGED,
     EVENT_RAIN_DELAY,
@@ -33,6 +32,7 @@ from .const import (
 )
 from .pybhyve import Client
 from .pybhyve.errors import AuthenticationError, BHyveError
+from .util import filter_configured_devices
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -81,7 +81,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         raise ConfigEntryNotReady() from err
 
     # Filter the device list to those that are enabled in options
-    devices = [d for d in all_devices if str(d["id"]) in entry.options[CONF_DEVICES]]
+    devices = filter_configured_devices(entry, all_devices)
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
         "client": client,
