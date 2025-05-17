@@ -2,13 +2,22 @@
 
 from __future__ import annotations
 
+import logging
+from typing import Any
+
 import amberelectric
 from amberelectric.models.site import Site
 from amberelectric.models.site_status import SiteStatus
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigFlow,
+    ConfigFlowResult,
+    OptionsFlow,
+)
 from homeassistant.const import CONF_API_TOKEN
+from homeassistant.core import callback
 from homeassistant.helpers.selector import (
     SelectOptionDict,
     SelectSelector,
@@ -16,9 +25,18 @@ from homeassistant.helpers.selector import (
     SelectSelectorMode,
 )
 
-from .const import CONF_SITE_ID, CONF_SITE_NAME, DOMAIN
+from .const import (
+    CONF_PRICE_FORECAST_NEXT,
+    CONF_PRICE_RESOLUTION,
+    CONF_SITE_ID,
+    CONF_SITE_NAME,
+    DOMAIN,
+    ConfPriceResolution,
+)
 
 API_URL = "https://app.amber.com.au/developers"
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def generate_site_selector_name(site: Site) -> str:
@@ -51,6 +69,7 @@ class AmberElectricConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow."""
 
     VERSION = 1
+    MINOR_VERSION = 2
 
     def __init__(self) -> None:
         """Initialize the config flow."""
@@ -76,6 +95,12 @@ class AmberElectricConfigFlow(ConfigFlow, domain=DOMAIN):
             self._errors[CONF_API_TOKEN] = "no_site"
             return None
         return sites
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
+        """Create the options flow for Amber Electric."""
+        return AmberElectricOptionsFlowHandler()
 
     async def async_step_user(
         self, user_input: dict[str, str] | None = None
@@ -148,4 +173,61 @@ class AmberElectricConfigFlow(ConfigFlow, domain=DOMAIN):
                 }
             ),
             errors=self._errors,
+        )
+
+
+class AmberElectricOptionsFlowHandler(OptionsFlow):
+    """Handle an options flow for Amber Electric."""
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle the initial options flow step."""
+        errors = {}
+
+        if user_input is not None:
+            if (
+                user_input[CONF_PRICE_FORECAST_NEXT] <= 0
+                or user_input[CONF_PRICE_FORECAST_NEXT] > 2048
+            ):
+                errors[CONF_PRICE_FORECAST_NEXT] = "invalid_forecast_next"
+            else:
+                return self.async_create_entry(data=user_input)
+
+        else:
+            user_input = {
+                CONF_PRICE_RESOLUTION: self.config_entry.options.get(
+                    CONF_PRICE_RESOLUTION, ConfPriceResolution.THIRTY_MIN
+                ),
+                CONF_PRICE_FORECAST_NEXT: self.config_entry.options.get(
+                    CONF_PRICE_FORECAST_NEXT, 48
+                ),
+            }
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Optional(CONF_PRICE_RESOLUTION): SelectSelector(
+                        SelectSelectorConfig(
+                            options=[
+                                SelectOptionDict(
+                                    value=resolution,
+                                    label=label,
+                                )
+                                for (resolution, label) in (
+                                    (ConfPriceResolution.FIVE_MIN, "5 minutes"),
+                                    (ConfPriceResolution.THIRTY_MIN, "30 minutes"),
+                                )
+                            ],
+                            mode=SelectSelectorMode.LIST,
+                        )
+                    ),
+                    vol.Optional(
+                        CONF_PRICE_FORECAST_NEXT,
+                        default=user_input[CONF_PRICE_FORECAST_NEXT],
+                    ): vol.Coerce(int),
+                },
+            ),
+            errors=errors,
         )

@@ -81,6 +81,8 @@ class AmberUpdateCoordinator(DataUpdateCoordinator):
         config_entry: AmberConfigEntry,
         api: amberelectric.AmberApi,
         site_id: str,
+        price_resolution: int | None,
+        price_forecast_next: int | None,
     ) -> None:
         """Initialise the data service."""
         super().__init__(
@@ -92,6 +94,8 @@ class AmberUpdateCoordinator(DataUpdateCoordinator):
         )
         self._api = api
         self.site_id = site_id
+        self.price_resolution = price_resolution
+        self.price_forecast_next = price_forecast_next
 
     def update_price_data(self) -> dict[str, dict[str, Any]]:
         """Update callback."""
@@ -103,7 +107,11 @@ class AmberUpdateCoordinator(DataUpdateCoordinator):
             "grid": {},
         }
         try:
-            data = self._api.get_current_prices(self.site_id, next=48)
+            data = self._api.get_current_prices(
+                self.site_id,
+                next=self.price_forecast_next,
+                resolution=self.price_resolution,
+            )
             intervals = [interval.actual_instance for interval in data]
         except ApiException as api_exception:
             raise UpdateFailed("Missing price data, skipping update") from api_exception

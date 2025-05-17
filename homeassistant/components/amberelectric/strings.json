@@ -21,5 +21,18 @@
       "no_site": "No site provided",
       "unknown_error": "[%key:common::config_flow::error::unknown%]"
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "price_resolution": "Price duration interval",
+          "price_forecast_next": "Number of forecast periods to fetch"
+        }
+      }
+    },
+    "error": {
+      "invalid_forecast_next": "Forecast value must be between 1 and 2048."
+    }
   }
 }
